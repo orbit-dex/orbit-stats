@@ -1,7 +1,7 @@
 import React from 'react';
 import { RiLoader5Fill } from 'react-icons/ri';
 import { Box, Button, ButtonGroup, Text, Spinner } from '@chakra-ui/react';
-import { Toggle } from '../../../types';
+//import { Toggle } from '../../../types';
 
 interface Toggle {
     text: string;

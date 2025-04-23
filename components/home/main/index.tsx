@@ -37,7 +37,7 @@ const Main = () => {
             >
                 <Box display="flex" w="100%" justifyContent="center" alignContent="center">
                     <Text textAlign="center" fontSize="3.8rem" lineHeight="3.6rem" color="#000" display="flex" fontFamily="Teodor" fontWeight="500">
-                        Hyperliquid Stats
+                        Orbit Analytics
                     </Text>
                 </Box>
             </Box>

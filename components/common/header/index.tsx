@@ -28,19 +28,20 @@ const Header = () => {
           paddingY='0'
         >
           <Box display='flex' alignItems='center'>
-            <Flex as="a" href='https://hyperliquid.xyz' target='_blank' rel='noreferrer' cursor="pointer" alignItems="center">
+            <Flex as="a" href='https://orbit.xyz' target='_blank' rel='noreferrer' cursor="pointer" alignItems="center">
               <S.LogoWrapper>
-                <NextImg src="/img/logo.svg" alt="Hyperliquid" width="300" height="60" />
+             
+                <NextImg src="/img/orbit-fin.png" alt="Orbit" width={300} height={60} />
               </S.LogoWrapper>
             </Flex>
           </Box>
           {!isMobile && (
-            <Flex as="a" href='https://thunderhead.xyz' target='_blank' rel='noreferrer' cursor="pointer" alignItems="center">
+            <Flex as="a" href='https://orbitfoundation.xyz' target='_blank' rel='noreferrer' cursor="pointer" alignItems="center">
               <Flex mr="3" justifyItems="center" justifyContent="center" color="#000" fontSize="0.9rem" fontWeight="500" cursor="pointer">
                 Built By
               </Flex>
               <Flex width="140px" height="34px" py="0" justifyItems="center" justifyContent="center" cursor="pointer">
-                <Image src="/img/thunderhead_light.png" alt="Thunderhead" />
+                <Image src="/img/orbit-white.svg" alt="Thunderhead" />
               </Flex>
             </Flex>
           )}

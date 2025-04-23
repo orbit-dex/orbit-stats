@@ -9,17 +9,11 @@ const Footer = () => {
       <Box width="100%" bg="#050b0c" pt="5" zIndex="2" position="relative">
         <Container maxWidth="container.xl">
           <Flex width="100%" py="6" justifyItems="center" justifyContent="space-between" flexDirection={{ xs: "column", md: "row" }} alignItems="center">
-            <Flex as="a" href='https://thunderhead.world' target='_blank' rel='noreferrer' cursor="pointer" alignItems="center">
-              <Flex py="5" mr="4" justifyItems="center" justifyContent="center" color="whiteAlpha.600" fontSize="1.2rem">
-                Built By
-              </Flex>
-              <Flex width="240px" py="6" justifyItems="center" justifyContent="center">
-                <Image alt="Thunderhead" src="/img/logo.png" />
-              </Flex>
+            <Flex as="a" href='https://orbitfoundation.xyz' target='_blank' rel='noreferrer' cursor="pointer" alignItems="center">
             </Flex>
             <Flex>
               <Flex mt='0.5'>
-                <Flex as="a" href='https://github.com/thunderhead-labs/hyperliquid-stats-web' target='_blank' rel='noreferrer' flexDirection="row" justifyItems="center" alignItems="center">
+                <Flex as="a" href='https://github.com/orbit-dex/orbit-stats' target='_blank' rel='noreferrer' flexDirection="row" justifyItems="center" alignItems="center">
                   <Flex>
                     <FaGithub size={34} />
                   </Flex>

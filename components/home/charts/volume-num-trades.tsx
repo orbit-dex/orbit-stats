@@ -345,7 +345,7 @@ export default function VolumeChart() {
             </ResponsiveContainer>
             <Box w="100%" mt="3">
                 {dataMode === 'COINS' && (
-                    <Text color="#bbb">Top 10 Coins grouped daily and remaining coins grouped by Other</Text>
+                    <Text color="#000000">Top 10 Coins grouped daily and remaining coins grouped by Other</Text>
                 )}
             </Box>
         </ChartWrapper>

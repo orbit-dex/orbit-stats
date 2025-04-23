@@ -3,8 +3,14 @@ import theme from "../styles/theme";
 import { Providers } from "./providers";
 
 export const metadata = {
-  title: 'Orbit Stats',
+  title: 'Orbit',
   description: 'Explore the Orbit protocol',
+  icons: {
+    icon: [],
+    shortcut: [],
+    apple: [],
+    other: []
+  }
 }
 
 export default function RootLayout({
@@ -16,13 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta name="viewport" content="width=device-width" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png" />
-
-        
-      </head>
+        <meta name="viewport" content="width=device-width" />      </head>
       <body>
         <Providers>
           {children}

@@ -11,7 +11,7 @@ export const GlobalStyles = css`
     margin: 0;
     padding: 0;
     color: #fff;
-    background: #eee;
+    background: #000;
     font-family: 'Inter', sans-serif;
   }
 

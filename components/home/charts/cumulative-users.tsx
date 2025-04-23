@@ -103,7 +103,7 @@ export default function CumulativeUsers() {
                         labelFormatter={() => ''}
                         contentStyle={{
                             textAlign: 'left',
-                            background: "#0A1F1B",
+                            background: "#000000",
                             borderColor: "#061412",
                             boxShadow: "0px 0px 7px rgb(0 0 0 / 20%)",
                             borderRadius: "26px",

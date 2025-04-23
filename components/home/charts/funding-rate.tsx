@@ -191,7 +191,7 @@ export default function FundingRate() {
                 </LineChart>
             </ResponsiveContainer>
             <Box w="100%" mt="3">
-                <Text color="#bbb">Top 10 Coins over time</Text>
+                <Text color="#000000">Top 10 Coins over time</Text>
             </Box>
         </ChartWrapper>
     )

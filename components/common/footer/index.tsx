@@ -20,7 +20,7 @@ const Footer = () => {
                 </Flex>
               </Flex>
               <Flex mt='0.5' ml="5">
-                <Flex as="a" href='https://t.me/thundercove/33737' target='_blank' rel='noreferrer' flexDirection="row" justifyItems="center" alignItems="center">
+                <Flex as="a" href='https://t.me/orbit2' target='_blank' rel='noreferrer' flexDirection="row" justifyItems="center" alignItems="center">
                   <Flex>
                     <FaTelegram size={34} />
                   </Flex>

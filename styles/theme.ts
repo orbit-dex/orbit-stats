@@ -27,10 +27,10 @@ const breakpoints = {
 
 const colors = {
   brand: {
-    500: '#97ffe4',
+    500: '#A78BFA',
   },
   secondary: {
-    500: '#0f2e29',
+    500: '#000000',
   },
   blue: {
     200: '#3d6675',

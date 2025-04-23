@@ -231,7 +231,7 @@ export default function VolumeChart() {
                         dataKey="time"
                         tickFormatter={xAxisFormatter}
                         minTickGap={30}
-                        tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+                        tick={{ fill: '#000000', fontSize: isMobile ? 14 : 15 }}
                         tickMargin={10}
                     />
                     <YAxis
@@ -240,23 +240,23 @@ export default function VolumeChart() {
                         tickCount={7}
                         tickFormatter={yaxisFormatter}
                         width={YAXIS_WIDTH}
-                        tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+                        tick={{ fill: '#000000', fontSize: isMobile ? 14 : 15 }}
                     />
                     <YAxis dataKey="cumulative" orientation="right" yAxisId="right"
                         tickFormatter={yaxisFormatter}
                         width={YAXIS_WIDTH}
-                        tick={{ fill: '#f9f9f9', fontSize: isMobile ? 14 : 15 }}
+                        tick={{ fill: '#000000', fontSize: isMobile ? 14 : 15 }}
                     />
                     <Tooltip
                         formatter={tooltipFormatterCurrency}
                         labelFormatter={tooltipLabelFormatter}
                         contentStyle={{
                             textAlign: 'left',
-                            background: "#0A1F1B",
-                            borderColor: "#061412",
+                            background: "#F3E8FF",
+                            borderColor: "#E9D5FF",
                             boxShadow: "0px 0px 7px rgb(0 0 0 / 20%)",
                             borderRadius: "26px",
-                            color: "#fff",
+                            color: "#000000",
                         }}
                         itemSorter={(item) => {
                             return Number(item.value) * -1;
@@ -328,7 +328,7 @@ export default function VolumeChart() {
             </ResponsiveContainer>
             <Box w="100%" mt="3" >
                 {dataMode === 'COINS' && (
-                    <Text color="#bbb">Top 10 Coins grouped daily and remaining coins grouped by Other</Text>
+                    <Text color="#000000">Top 10 Coins grouped daily and remaining coins grouped by Other</Text>
                 )}
             </Box>
         </ChartWrapper>

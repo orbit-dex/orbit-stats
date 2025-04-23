@@ -305,7 +305,7 @@ export default function CumulativeNotionalLiquidated() {
                 </ComposedChart>
             </ResponsiveContainer>
             <Box w="100%" mt="3">
-                <Text color="#bbb">
+                <Text color="#000000">
                     Top 10 Coins grouped daily and remaining coins grouped by Other
                 </Text>
             </Box>

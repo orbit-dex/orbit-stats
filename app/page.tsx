@@ -1,16 +1,13 @@
-import type { NextPage } from 'next';
-import Header from '../components/common/header';
-import Footer from '../components/common/footer';
-import Main from '../components/home/main';
+'use client'
+import { Box } from '@chakra-ui/react';
 
-const Home: NextPage = () => {
+export default function Home() {
   return (
-    <>
-      <Header />
-      <Main />
-      <Footer />
-    </>
+    <Box 
+      as="main" 
+      w="100vw" 
+      h="100vh" 
+      bg="black"
+    />
   );
-};
-
-export default Home;
+}

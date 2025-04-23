@@ -1,18 +1,27 @@
 'use client'
 import React from 'react';
 import NextImg from "next/image"
-import { Container, Box, Text, Image, Flex, useMediaQuery } from '@chakra-ui/react';
+import { Container, Box, Text, Image, Flex, useMediaQuery, Link, Button } from '@chakra-ui/react';
 import * as S from './styles';
+import NextLink from 'next/link';
 
 const Header = () => {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
 
+  const navLinks = [
+    { name: 'Trade', path: '/trade' },
+    { name: 'Portfolio', path: '/portfolio' },
+    { name: 'Explore', path: '/explore' },
+    { name: 'Leaderboard', path: '/leaderboard' },
+    { name: 'Launchpad', path: '/launchpad' },
+  ];
+
   return (
     <Container maxWidth='100%' position='relative' zIndex='9' m="0" px="1rem">
       <Box
-        my="16px"
+        my="0"
         width='100%'
-        background="#fff"
+        background="#000"
         boxShadow="0 2px 12px rgba(7,39,35,.06)"
         py="3"
         px="1rem"
@@ -27,43 +36,46 @@ const Header = () => {
           zIndex='2'
           paddingY='0'
         >
-          <Box display='flex' alignItems='center'>
-            <Flex as="a" href='https://orbit.xyz' target='_blank' rel='noreferrer' cursor="pointer" alignItems="center">
+          <Flex alignItems='center' gap={4}>
+            <Flex as="a" href='/' cursor="pointer" alignItems="center">
               <S.LogoWrapper>
-             
-                <NextImg src="/img/orbit-fin.png" alt="Orbit" width={300} height={60} />
+                <NextImg src="/img/orbit-logo-w.png" alt="Cursor" width={28} height={28} style={{ filter: 'invert(1)' }} />
               </S.LogoWrapper>
             </Flex>
-          </Box>
-          {!isMobile && (
-            <Flex as="a" href='https://orbitfoundation.xyz' target='_blank' rel='noreferrer' cursor="pointer" alignItems="center">
-              <Flex mr="3" justifyItems="center" justifyContent="center" color="#000" fontSize="0.9rem" fontWeight="500" cursor="pointer">
-                Built By
-              </Flex>
-              <Flex width="140px" height="34px" py="0" justifyItems="center" justifyContent="center" cursor="pointer">
-                <Image src="/img/orbit-white.svg" alt="Thunderhead" />
-              </Flex>
-            </Flex>
-          )}
+            <Button
+              bg="#A78BFA"
+              color="black"
+              _hover={{ bg: '#8B5CF6' }}
+              size="sm"
+              borderRadius="xl"
+              fontWeight="600"
+            >
+              Connect Wallet
+            </Button>
+          </Flex>
+
+          <Flex 
+            display={{ base: 'none', md: 'flex' }} 
+            gap={6} 
+            alignItems="center"
+          >
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                as={NextLink}
+                href={link.path}
+                color="white"
+                _hover={{ color: '#97ffe4' }}
+                fontSize="md"
+                fontWeight="medium"
+              >
+                {link.name}
+              </Link>
+            ))}
+          </Flex>
         </Box>
       </Box>
-      {isMobile && (
-        <Box w="100%" display="flex" justifyContent="center" alignItems="center" justifyItems="center">
-          <Box display="flex" justifyContent="center" alignItems="center">
-            <Flex as="a" href='https://thunderhead.xyz' target='_blank' rel='noreferrer' cursor="pointer" alignItems="center" justifyContent="center">
-              <Flex mr="3" color="#000" fontSize="0.9rem" fontWeight="500" cursor="pointer" w="52px" justifyContent="center" alignItems="center">
-                Built By
-              </Flex>
-              <Flex height="34px" py="0" cursor="pointer" justifyContent="center" alignItems="center" position="relative">
-                <Image src="/img/thunderhead_light.png" alt="Thunderhead" w="auto" height="40px" position="relative" />
-              </Flex>
-            </Flex>
-          </Box>
-        </Box>
-
-      )}
     </Container>
-
   );
 };
 

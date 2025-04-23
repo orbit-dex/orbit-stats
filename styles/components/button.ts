@@ -41,31 +41,27 @@ const Button = {
     },
     primary: {
       border: '1px solid',
-      background: '#194D44',
+      background: '#000000',
       borderWidth: '0',
-      // borderColor: 'yellow.500',
-      // borderWidth: '1px',
       color: '#fff',
       _focus: {
         boxShadow: 'none',
       },
       _hover: {
-        background: lighten(0.2, '#194D44'),
+        background: lighten(0.2, '#000000'),
         textDecoration: 'none',
       },
     },
     faded: {
       border: '1px solid',
-      background: '#143E37',
+      background: '#000000',
       borderWidth: '0',
-      //borderColor: '#ddd',
-      //borderWidth: '1px',
       color: '#fff',
       _focus: {
         boxShadow: 'none',
       },
       _hover: {
-        background: lighten(0.2, '#143E37'),
+        background: lighten(0.2, '#000000'),
         textDecoration: 'none',
       },
     },

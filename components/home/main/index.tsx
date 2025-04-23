@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react';
 import moment from "moment";
-import { Container, Box, Text, Grid, Flex } from '@chakra-ui/react';
+import { Container, Box, Text, Grid, Flex, Button, Select } from '@chakra-ui/react';
 import * as S from './styles';
 import TopStats from '../charts/top-stats';
 import VolumeNonMMChart from '../charts/volume-non-hlp';
@@ -23,27 +23,30 @@ import Liquidity from "../charts/liquidity"
 
 
 const Main = () => {
+    const [timeframe, setTimeframe] = useState<string>('30D');
+    const [chartType, setChartType] = useState<string>('Cumulative');
 
     return (
         <Container
-            maxWidth='100%' my='0' position='relative' zIndex='2' mt="2rem" mb="2rem"
-            p={{ xs: 0, md: '1rem' }}
+            maxWidth='100%' my='0' position='relative' zIndex='2' mt="0" mb="2rem"
+            p={{ xs: 0, md: '0' }}
         >
             <Box
                 width="100%" height="220px"
-                background="url(img/background-circles.svg) center -100px / auto no-repeat"
+                background="#000000"
                 display="flex"
                 alignItems="center"
+                mt="0"
             >
                 <Box display="flex" w="100%" justifyContent="center" alignContent="center">
-                    <Text textAlign="center" fontSize="3.8rem" lineHeight="3.6rem" color="#000" display="flex" fontFamily="Teodor" fontWeight="500">
-                        Orbit Analytics
+                    <Text textAlign="center" fontSize="3.8rem" lineHeight="3.6rem" color="#fff" display="flex" fontFamily="Teodor" fontWeight="500">
+                        Orbit
                     </Text>
                 </Box>
             </Box>
             <Box position="relative" width='100%'
                 p={{ xs: 0, md: '1rem' }}
-                bg="#02231e" borderRadius="35px" minHeight="3000px">
+                bg="#000000" borderRadius="35px" minHeight="3000px">
                 <Flex
                     position="relative" width='100%' px="3" zIndex="11"
                     pt={{ xs: '1rem', md: 0 }}

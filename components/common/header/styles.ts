@@ -6,13 +6,14 @@ export const LogoWrapper = styled(Box)`
   position: relative;
   display: flex;
   height: 28px;
+  width: 28px;
   color: #fff;
-  font-size: 1.2rem;
-  font-weight: 500;
+  margin-left: 8px;
 
   img {
     height: 100%;
-    width: auto;
+    width: 100%;
+    object-fit: contain;
   }
 `;
 

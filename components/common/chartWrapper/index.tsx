@@ -1,5 +1,7 @@
+import React from 'react';
 import { RiLoader5Fill } from 'react-icons/ri';
 import { Box, Button, ButtonGroup, Text, Spinner } from '@chakra-ui/react';
+import { Toggle } from '../../../types';
 
 interface Toggle {
     text: string;
@@ -23,7 +25,7 @@ function ChartWrapper(props: any) {
         <Box display="grid" width={{ xs: '100%', md: '100%' }} mt="3" p={{ xs: '0', md: '0 5 0 0' }}>
             <Box position="relative"
                 p={{ xs: '2', md: '4' }}
-                bg="#0f2e29"
+                bg="#F3E8FF"
                 boxShadow="0px 0px 7px rgb(0 0 0 / 20%)"
                 borderRadius={{ xs: '0', md: '2xl' }}
                 zIndex={zIndex}
@@ -34,7 +36,7 @@ function ChartWrapper(props: any) {
                         justifyContent="space-between"
                         flexDirection={{ xs: "column", md: "row" }}
                     >
-                        <Text display="flex" w={{ xs: "100%", md: "100%" }} fontSize="1.2rem" fontWeight="600">
+                        <Text display="flex" w={{ xs: "100%", md: "100%" }} fontSize="1.2rem" fontWeight="600" color="#000000">
                             {title}
                         </Text>
                         <Box w={{ xs: "100%", md: "100%" }} display="flex" justifyContent={{ xs: "flex-start", md: "flex-end" }}

@@ -39,7 +39,7 @@ const Header = () => {
           <Flex alignItems='center' gap={4}>
             <Flex as="a" href='/' cursor="pointer" alignItems="center">
               <S.LogoWrapper>
-                <NextImg src="/img/orbit-logo-w.png" alt="Cursor" width={28} height={28} style={{ filter: 'invert(1)' }} />
+                <NextImg src="/img/orbit-logo-w1.png" alt="Cursor" width={28} height={28} style={{ filter: 'invert(1)' }} />
               </S.LogoWrapper>
             </Flex>
             <Button

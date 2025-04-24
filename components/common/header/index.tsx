@@ -4,6 +4,7 @@ import NextImg from "next/image"
 import { Container, Box, Text, Image, Flex, useMediaQuery, Link, Button } from '@chakra-ui/react';
 import * as S from './styles';
 import NextLink from 'next/link';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 const Header = () => {
   const [isMobile] = useMediaQuery('(max-width: 700px)');
@@ -42,16 +43,7 @@ const Header = () => {
                 <NextImg src="/img/orbit-logo-w1.png" alt="Cursor" width={28} height={28} style={{ filter: 'invert(1)' }} />
               </S.LogoWrapper>
             </Flex>
-            <Button
-              bg="#A78BFA"
-              color="black"
-              _hover={{ bg: '#8B5CF6' }}
-              size="sm"
-              borderRadius="xl"
-              fontWeight="600"
-            >
-              Connect Wallet
-            </Button>
+            <WalletMultiButton />
           </Flex>
 
           <Flex 

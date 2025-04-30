@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100" height="24" viewBox="0 0 100 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12.5 2L2 12.5L12.5 23L23 12.5L12.5 2Z" fill="#9945FF"/>
+  <path d="M35.5 6H39.5L44 18H40.5L39.5 15H35.5L34.5 18H31L35.5 6ZM37.5 9L36 13H39L37.5 9Z" fill="white"/>
+  <path d="M46 6H49.5V15.5L54 6H57.5V18H54V8.5L49.5 18H46V6Z" fill="white"/>
+  <path d="M60 6H67C68.1 6 69 6.4 69.7 7.2C70.4 8 70.75 9 70.75 10.2C70.75 11.4 70.4 12.4 69.7 13.2C69 14 68.1 14.4 67 14.4H63.5V18H60V6ZM63.5 11.9H66.25C66.75 11.9 67.15 11.75 67.45 11.45C67.75 11.15 67.9 10.75 67.9 10.25C67.9 9.75 67.75 9.35 67.45 9.05C67.15 8.75 66.75 8.6 66.25 8.6H63.5V11.9Z" fill="white"/>
+  <path d="M73 6H76.5V18H73V6Z" fill="white"/>
+  <path d="M79 6H82.5V15.5L87 6H90.5V18H87V8.5L82.5 18H79V6Z" fill="white"/>
+  <path d="M93 6H97L99.5 11L102 6H106L101 14V18H98V14L93 6Z" fill="white"/>
+</svg> 

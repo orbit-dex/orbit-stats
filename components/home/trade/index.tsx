@@ -1,10 +1,106 @@
 'use client'
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Text, Flex, Grid, Input, InputGroup, Button, Table, Thead, Tbody, Tr, Th, Td, Select, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
 
+type TradeType = {
+  id: string;
+  price: number;
+  size: number;
+  timestamp: number;
+  // add other fields as needed
+};
+
+// Types for balances and order book
+
+type BalanceType = {
+  asset: string;
+  available: number;
+  total: number;
+};
+
+type OrderBookEntry = {
+  price: number;
+  size: number;
+};
+
+type OrderBookType = {
+  bids: OrderBookEntry[];
+  asks: OrderBookEntry[];
+};
+
 const Trade: React.FC = () => {
+  const [trades, setTrades] = useState<TradeType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Add state for balances
+  const [balances, setBalances] = useState<BalanceType[]>([]);
+  const [balancesLoading, setBalancesLoading] = useState(false);
+  const [balancesError, setBalancesError] = useState<string | null>(null);
+
+  // Add state for order book
+  const [orderBook, setOrderBook] = useState<OrderBookType>({ bids: [], asks: [] });
+  const [orderBookLoading, setOrderBookLoading] = useState(false);
+  const [orderBookError, setOrderBookError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/v1/trades?asset=ORBT&limit=20')
+      .then(res => res.json())
+      .then(data => {
+        setTrades(data.trades || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Failed to fetch trades');
+        setLoading(false);
+      });
+  }, []);
+
+  // Fetch balances
+  useEffect(() => {
+    setBalancesLoading(true);
+    setBalancesError(null);
+    fetch('/v1/balances?user_id=demo')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch balances');
+        return res.json();
+      })
+      .then((data) => {
+        // Assume data.balances is an array
+        setBalances(data.balances || []);
+        setBalancesLoading(false);
+      })
+      .catch((err) => {
+        setBalancesError(err.message);
+        setBalancesLoading(false);
+      });
+  }, []);
+
+  // Fetch order book
+  useEffect(() => {
+    setOrderBookLoading(true);
+    setOrderBookError(null);
+    fetch('/v1/orderbook?asset=ORBT')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch order book');
+        return res.json();
+      })
+      .then((data) => {
+        // Assume data.bids and data.asks are arrays
+        setOrderBook({
+          bids: data.bids || [],
+          asks: data.asks || [],
+        });
+        setOrderBookLoading(false);
+      })
+      .catch((err) => {
+        setOrderBookError(err.message);
+        setOrderBookLoading(false);
+      });
+  }, []);
+
   return (
-    <Grid templateColumns="1fr 500px" gap={0} height="calc(100vh - 140px)">
+    <Grid templateColumns="1fr 500px" gap={0} height="calc(100vh - 80px)">
       {/* Main Trading Area */}
       <Box bg="black" p={4}>
         {/* Token Info Bar */}
@@ -31,7 +127,7 @@ const Trade: React.FC = () => {
           <Box>
             {/* Chart Area Placeholder */}
             <Box 
-              height="calc(100vh - 500px)" 
+              height="calc(100vh - 440px)" 
               minHeight="300px"
               bg="#111" 
               borderRadius="xl"
@@ -120,9 +216,19 @@ const Trade: React.FC = () => {
           </Box>
 
           {/* Order Book and Recent Trades Tabs */}
-          <Box bg="#111" borderRadius="xl" height="calc(100vh - 200px)" maxHeight="1000px">
+          <Box bg="#111" borderRadius="xl" height="calc(100vh - 140px)" maxHeight="1000px">
             <Tabs variant="unstyled" height="100%">
               <TabList borderBottom="1px solid #222" px={4}>
+                <Tab
+                  color="#4A5568"
+                  _selected={{ color: 'white', borderBottom: '2px solid #A78BFA' }}
+                  _hover={{ color: 'white' }}
+                  fontSize="sm"
+                  py={3}
+                  px={4}
+                >
+                  Balances
+                </Tab>
                 <Tab
                   color="#4A5568"
                   _selected={{ color: 'white', borderBottom: '2px solid #A78BFA' }}
@@ -149,31 +255,74 @@ const Trade: React.FC = () => {
                   <Table variant="simple" size="sm">
                     <Thead position="sticky" top={0} bg="#111" zIndex={1}>
                       <Tr>
+                        <Th color="#4A5568">Asset</Th>
+                        <Th color="#4A5568">Available</Th>
+                        <Th color="#4A5568">Total</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {balancesLoading ? (
+                        <Tr><Td colSpan={3} color="#A78BFA" textAlign="center">Loading...</Td></Tr>
+                      ) : balancesError ? (
+                        <Tr><Td colSpan={3} color="red.400" textAlign="center">{balancesError}</Td></Tr>
+                      ) : balances.length === 0 ? (
+                        <Tr><Td colSpan={3} color="#A78BFA" textAlign="center">No balances found</Td></Tr>
+                      ) : (
+                        balances.map((bal, i) => (
+                          <Tr key={i}>
+                            <Td color="white">{bal.asset}</Td>
+                            <Td color="#00FFD1">{bal.available}</Td>
+                            <Td color="#A78BFA">{bal.total}</Td>
+                          </Tr>
+                        ))
+                      )}
+                    </Tbody>
+                  </Table>
+                </TabPanel>
+                <TabPanel p={4} height="100%">
+                  <Table variant="simple" size="sm">
+                    <Thead position="sticky" top={0} bg="#111" zIndex={1}>
+                      <Tr>
                         <Th color="#4A5568" width="33%">Price</Th>
                         <Th color="#4A5568" width="33%">Size</Th>
                         <Th color="#4A5568" width="33%">Total</Th>
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {[...Array(20)].map((_, i) => (
-                        <Tr key={i}>
-                          <Td color="#FF3B3B">19.163</Td>
-                          <Td color="white">97.24</Td>
-                          <Td color="#4A5568">460.66</Td>
-                        </Tr>
-                      ))}
-                      <Tr>
-                        <Td colSpan={3} textAlign="center" py={2}>
-                          <Text color="#A78BFA" fontSize="sm" fontWeight="bold">19.165</Text>
-                        </Td>
-                      </Tr>
-                      {[...Array(20)].map((_, i) => (
-                        <Tr key={`bid-${i}`}>
-                          <Td color="#00FFD1">19.167</Td>
-                          <Td color="white">102.45</Td>
-                          <Td color="#4A5568">478.89</Td>
-                        </Tr>
-                      ))}
+                      {orderBookLoading ? (
+                        <Tr><Td colSpan={3} color="#A78BFA" textAlign="center">Loading...</Td></Tr>
+                      ) : orderBookError ? (
+                        <Tr><Td colSpan={3} color="red.400" textAlign="center">{orderBookError}</Td></Tr>
+                      ) : (orderBook.asks.length === 0 && orderBook.bids.length === 0) ? (
+                        <Tr><Td colSpan={3} color="#A78BFA" textAlign="center">No order book data</Td></Tr>
+                      ) : (
+                        <>
+                          {/* Asks (sell orders, usually shown on top, red) */}
+                          {orderBook.asks.map((ask, i) => (
+                            <Tr key={`ask-${i}`}>
+                              <Td color="#FF3B3B">{ask.price}</Td>
+                              <Td color="white">{ask.size}</Td>
+                              <Td color="#4A5568">{(ask.price * ask.size).toFixed(2)}</Td>
+                            </Tr>
+                          ))}
+                          {/* Mid price separator (optional) */}
+                          <Tr>
+                            <Td colSpan={3} textAlign="center" py={2}>
+                              <Text color="#A78BFA" fontSize="sm" fontWeight="bold">
+                                {orderBook.asks.length > 0 && orderBook.bids.length > 0 ? ((orderBook.asks[0].price + orderBook.bids[0].price) / 2).toFixed(3) : '--'}
+                              </Text>
+                            </Td>
+                          </Tr>
+                          {/* Bids (buy orders, usually shown below, green) */}
+                          {orderBook.bids.map((bid, i) => (
+                            <Tr key={`bid-${i}`}>
+                              <Td color="#00FFD1">{bid.price}</Td>
+                              <Td color="white">{bid.size}</Td>
+                              <Td color="#4A5568">{(bid.price * bid.size).toFixed(2)}</Td>
+                            </Tr>
+                          ))}
+                        </>
+                      )}
                     </Tbody>
                   </Table>
                 </TabPanel>
@@ -187,13 +336,33 @@ const Trade: React.FC = () => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {[...Array(20)].map((_, i) => (
-                        <Tr key={i}>
-                          <Td color="#00FFD1">19.165</Td>
-                          <Td color="white">42.03</Td>
-                          <Td color="#4A5568">22:08:48</Td>
+                      {loading ? (
+                        <Tr>
+                          <Td colSpan={3} color="#A78BFA" textAlign="center">Loading...</Td>
                         </Tr>
-                      ))}
+                      ) : error ? (
+                        <Tr>
+                          <Td colSpan={3} color="red.400" textAlign="center">{error}</Td>
+                        </Tr>
+                      ) : trades.length === 0 ? (
+                        <Tr>
+                          <Td colSpan={3} color="#A78BFA" textAlign="center">No trades found</Td>
+                        </Tr>
+                      ) : (
+                        trades.map((trade) => (
+                          <Tr key={trade.id}>
+                            <Td color="#00FFD1">{trade.price}</Td>
+                            <Td color="white">{trade.size}</Td>
+                            <Td color="#4A5568">{
+                              new Date(
+                                (typeof trade.timestamp === 'string'
+                                  ? parseInt(trade.timestamp)
+                                  : trade.timestamp) * 1000
+                              ).toLocaleTimeString()
+                            }</Td>
+                          </Tr>
+                        ))
+                      )}
                     </Tbody>
                   </Table>
                 </TabPanel>

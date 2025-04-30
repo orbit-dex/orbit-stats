@@ -163,10 +163,10 @@ const Launchpad: React.FC = () => {
       <Box p={8}>
         <Box mb={6}>
           <Text fontSize="3xl" fontWeight="bold" color="white" mb={2}>
-            Launchpad
+            Compute Exchange
           </Text>
           <Text fontSize="lg" color="#4A5568">
-            Launch and Trade Agent Tokens
+             Deploy on-demand or reserve instances. (sfcompute.com)
           </Text>
         </Box>
 

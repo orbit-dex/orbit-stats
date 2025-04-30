@@ -1,73 +1,101 @@
 'use client'
 import React from 'react';
-import NextImg from "next/image"
-import { Container, Box, Text, Image, Flex, useMediaQuery, Link, Button } from '@chakra-ui/react';
-import * as S from './styles';
-import NextLink from 'next/link';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import {
+  Box,
+  Flex,
+  Text,
+  Button,
+  HStack,
+  Link as ChakraLink,
+  Container
+} from '@chakra-ui/react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 const Header = () => {
-  const [isMobile] = useMediaQuery('(max-width: 700px)');
-
-  const navLinks = [
-    { name: 'Trade', path: '/trade' },
-    { name: 'Portfolio', path: '/portfolio' },
-    { name: 'Explore', path: '/explore' },
-    { name: 'Leaderboard', path: '/leaderboard' },
-    { name: 'Launchpad', path: '/launchpad' },
-  ];
-
   return (
-    <Container maxWidth='100%' position='relative' zIndex='9' m="0" px="1rem">
-      <Box
-        my="0"
-        width='100%'
-        background="#000"
-        boxShadow="0 2px 12px rgba(7,39,35,.06)"
-        py="3"
-        px="1rem"
-        borderRadius="100px"
-        display='flex'
-      >
-        <Box
-          width='100%'
-          display='flex'
-          alignItems='center'
-          justifyContent={{ xs: 'center', md: 'space-between' }}
-          zIndex='2'
-          paddingY='0'
+    <Box 
+      as="header" 
+      bg="black" 
+      borderBottom="1px solid" 
+      borderColor="whiteAlpha.100"
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      zIndex={100}
+    >
+      <Container maxW="container.2xl">
+        <Flex 
+          h="64px" 
+          align="center" 
+          justify="space-between"
+          px={4}
         >
-          <Flex alignItems='center' gap={4}>
-            <Flex as="a" href='/' cursor="pointer" alignItems="center">
-              <S.LogoWrapper>
-                <NextImg src="/img/orbit-logo-w1.png" alt="Cursor" width={28} height={28} style={{ filter: 'invert(1)' }} />
-              </S.LogoWrapper>
-            </Flex>
-            <WalletMultiButton />
-          </Flex>
+          {/* Left side - Logo and Title */}
+          <Link href="/" passHref>
+            <ChakraLink display="flex" alignItems="center" gap={2} _hover={{ textDecoration: 'none' }}>
+              <Box position="relative" width="24px" height="24px">
+                <Image
+                  src="/logo.svg"
+                  alt="Orbit Logo"
+                  fill
+                  style={{ objectFit: 'contain' }}
+                />
+              </Box>
+              <Text color="white" fontWeight="semibold" fontSize="md">Orbit</Text>
+            </ChakraLink>
+          </Link>
 
-          <Flex 
-            display={{ base: 'none', md: 'flex' }} 
-            gap={6} 
-            alignItems="center"
-          >
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                as={NextLink}
-                href={link.path}
-                color="white"
-                _hover={{ color: '#97ffe4' }}
-                fontSize="md"
-                fontWeight="medium"
-              >
-                {link.name}
+          {/* Right side - Navigation and Connect */}
+          <HStack spacing={8}>
+            <HStack spacing={6}>
+              <Link href="/trade" passHref>
+                <ChakraLink color="whiteAlpha.800" _hover={{ color: 'white', textDecoration: 'none' }}>
+                  Trade
+                </ChakraLink>
               </Link>
-            ))}
-          </Flex>
-        </Box>
-      </Box>
-    </Container>
+              <Link href="/pairs" passHref>
+                <ChakraLink color="whiteAlpha.800" _hover={{ color: 'white', textDecoration: 'none' }}>
+                  Pairs
+                </ChakraLink>
+              </Link>
+              <Link href="/vault" passHref>
+                <ChakraLink color="whiteAlpha.800" _hover={{ color: 'white', textDecoration: 'none' }}>
+                  Vault
+                </ChakraLink>
+              </Link>
+              <Link href="/portfolio" passHref>
+                <ChakraLink color="whiteAlpha.800" _hover={{ color: 'white', textDecoration: 'none' }}>
+                  Portfolio
+                </ChakraLink>
+              </Link>
+              <Link href="/explore" passHref>
+                <ChakraLink color="white" fontWeight="semibold" _hover={{ textDecoration: 'none' }}>
+                  Explore
+                </ChakraLink>
+              </Link>
+              <Link href="/leaderboard" passHref>
+                <ChakraLink color="whiteAlpha.800" _hover={{ color: 'white', textDecoration: 'none' }}>
+                  Leaderboard
+                </ChakraLink>
+              </Link>
+            </HStack>
+            
+            <Button
+              bg="#9945FF"
+              color="white"
+              _hover={{ bg: "#8134EB" }}
+              size="sm"
+              borderRadius="lg"
+              px={4}
+            >
+              Connect
+            </Button>
+          </HStack>
+        </Flex>
+      </Container>
+    </Box>
   );
 };
 

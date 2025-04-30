@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, ReactNode } from 'react';
-import { CacheProvider } from '@chakra-ui/next-js';
 import { ChakraProvider } from '@chakra-ui/react';
 import { Global } from '@emotion/react';
 
@@ -31,12 +30,10 @@ export function Providers({ children }: { children: ReactNode }) {
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           <DataContextProvider>
-            <CacheProvider>
-              <ChakraProvider theme={theme}>
-                <Global styles={GlobalStyles} />
-                {children}
-              </ChakraProvider>
-            </CacheProvider>
+            <ChakraProvider theme={theme}>
+              <Global styles={GlobalStyles} />
+              {children}
+            </ChakraProvider>
           </DataContextProvider>
         </WalletModalProvider>
       </WalletProvider>

@@ -516,9 +516,9 @@ interface ProjectEvent {
 interface ProjectConfig {
   basePrice: number;
   priceVolatility: number;
-  sentimentRange: [number, number];
-  mindshareRange: [number, number];
-  events: ProjectEvent[];
+  sentimentRange: readonly [number, number] | [number, number];
+  mindshareRange: readonly [number, number] | [number, number];
+  events: readonly ProjectEvent[] | ProjectEvent[];
 }
 
 interface ProjectDataMap {
@@ -530,14 +530,24 @@ const PROJECT_DATA: ProjectDataMap = {
   'Eigenlayer': {
     basePrice: 3200,
     priceVolatility: 50,
-    sentimentRange: [-3, 7],
-    mindshareRange: [1, 9],
+    sentimentRange: [-3, 7] as [number, number],
+    mindshareRange: [1, 9] as [number, number],
     events: [
-      { date: '2024-01-25', price: 3555.86, sentiment: 4.49, mindshare: 2.8, description: 'TVL hits new ATH' },
-      { date: '2024-03-15', price: 3800, sentiment: 6.2, mindshare: 3.5, description: 'Mainnet Launch' },
-      { date: '2024-05-01', price: 3900, sentiment: -2.5, mindshare: 8.2, description: 'Token Unlock' },
-      { date: '2024-09-01', price: 3700, sentiment: 4.8, mindshare: 6.5, description: 'Operator Update' }
-    ]
+      {
+        date: "2024-01-25",
+        price: 3555.86,
+        sentiment: 4.49,
+        mindshare: 2.8,
+        description: "TVL hits new ATH"
+      },
+      {
+        date: "2024-02-01",
+        price: 3612.45,
+        sentiment: 5.12,
+        mindshare: 3.1,
+        description: "Protocol upgrade announced"
+      }
+    ] as ProjectEvent[]
   },
   'Arbitrum': {
     basePrice: 1.50,

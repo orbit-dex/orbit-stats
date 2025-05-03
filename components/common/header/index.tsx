@@ -34,16 +34,17 @@ const Header = () => {
         >
           {/* Left side - Logo and Title */}
           <Link href="/" passHref>
-            <ChakraLink display="flex" alignItems="center" gap={2} _hover={{ textDecoration: 'none' }}>
-              <Box position="relative" width="24px" height="24px">
+            <ChakraLink display="flex" alignItems="center" gap={3} _hover={{ textDecoration: 'none' }}>
+              <Box position="relative" width="32px" height="32px">
                 <Image
                   src="/logo.svg"
                   alt="Orbit Logo"
                   fill
                   style={{ objectFit: 'contain' }}
+                  priority
                 />
               </Box>
-              <Text color="white" fontWeight="semibold" fontSize="md">Orbit</Text>
+              <Text color="white" fontWeight="semibold" fontSize="lg">Orbit</Text>
             </ChakraLink>
           </Link>
 

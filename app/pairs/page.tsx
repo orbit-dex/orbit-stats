@@ -26,15 +26,6 @@ interface TradingPair {
 // Mock data for pairs
 const mockPairs: TradingPair[] = [
   {
-    symbol: 'ORBT/USDC',
-    name: 'Orbit',
-    price: 1.247,
-    priceChange: 2.34,
-    volume: '892.5M',
-    fundingLong: 0.0012,
-    fundingShort: -0.0008,
-  },
-  {
     symbol: 'BTC/USD',
     name: 'Bitcoin',
     price: 94627,
@@ -83,6 +74,16 @@ const mockPairs: TradingPair[] = [
     status: 'CLOSED',
   },
 ];
+
+// Add a mapping for pair icons (placeholder: colored circle with initials)
+const pairIcons: Record<string, JSX.Element> = {
+  'BTC/USD': <Box as="span" bg="#F7931A" color="white" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">BTC</Box>,
+  'ETH/USD': <Box as="span" bg="#627EEA" color="white" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">ETH</Box>,
+  'SOL/USD': <Box as="span" bg="#00FFA3" color="black" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">SOL</Box>,
+  'SPX/USD': <Box as="span" bg="#A78BFA" color="black" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">SPX</Box>,
+  'DJI/USD': <Box as="span" bg="#4A5568" color="white" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">DJI</Box>,
+  'NDX/USD': <Box as="span" bg="#16C784" color="black" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">NDX</Box>,
+};
 
 const PairsPage = () => {
   const router = useRouter();
@@ -153,8 +154,10 @@ const PairsPage = () => {
 
                 {/* Top Section */}
                 <Flex direction="column" mb={3}>
-                  <Text color="white" fontSize="sm" mb={0.5} fontWeight="medium">{pair.symbol}</Text>
-                  <Text color="whiteAlpha.700" fontSize="xs">{pair.name}</Text>
+                  <Flex align="center">
+                    {pairIcons[pair.symbol]}
+                    <Text color="white" fontSize="sm" mb={0.5} fontWeight="medium">{pair.symbol}</Text>
+                  </Flex>
                 </Flex>
 
                 {/* Price Section */}
@@ -177,22 +180,19 @@ const PairsPage = () => {
                     <Text color="whiteAlpha.700">Cumulative Volume</Text>
                     <Text color="white">{pair.volume}</Text>
                   </Flex>
-                  {pair.fundingLong !== undefined && (
-                    <>
-                      <Flex justify="space-between" mb={1}>
-                        <Text color="whiteAlpha.700">Est 1h Funding Long</Text>
-                        <Text color={pair.fundingLong >= 0 ? '#00FFB3' : '#FF3B3B'}>
-                          {pair.fundingLong}%
-                        </Text>
-                      </Flex>
-                      <Flex justify="space-between">
-                        <Text color="whiteAlpha.700">Est 1h Funding Short</Text>
-                        <Text color={(pair.fundingShort ?? 0) >= 0 ? '#00FFB3' : '#FF3B3B'}>
-                          {(pair.fundingShort ?? 0).toFixed(4)}%
-                        </Text>
-                      </Flex>
-                    </>
-                  )}
+                  {/* Always show funding rows, use '--' if undefined */}
+                  <Flex justify="space-between" mb={1}>
+                    <Text color="whiteAlpha.700">Est 1h Funding Long</Text>
+                    <Text color={pair.fundingLong !== undefined && pair.fundingLong >= 0 ? '#00FFB3' : '#FF3B3B'}>
+                      {pair.fundingLong !== undefined ? `${pair.fundingLong}%` : '--'}
+                    </Text>
+                  </Flex>
+                  <Flex justify="space-between">
+                    <Text color="whiteAlpha.700">Est 1h Funding Short</Text>
+                    <Text color={pair.fundingShort !== undefined && pair.fundingShort >= 0 ? '#00FFB3' : '#FF3B3B'}>
+                      {pair.fundingShort !== undefined ? `${(pair.fundingShort).toFixed(4)}%` : '--'}
+                    </Text>
+                  </Flex>
                 </Box>
 
                 {/* Chart Indicator */}

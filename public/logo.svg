@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="12" cy="12" r="4" fill="#9945FF"/>
-  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="white"/>
-  <ellipse cx="12" cy="12" rx="7" ry="3" transform="rotate(45 12 12)" fill="white" fillOpacity="0.3"/>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M256 512C397.385 512 512 397.385 512 256C512 114.615 397.385 0 256 0C114.615 0 0 114.615 0 256C0 397.385 114.615 512 256 512ZM256 448C362.039 448 448 362.039 448 256C448 149.961 362.039 64 256 64C149.961 64 64 149.961 64 256C64 362.039 149.961 448 256 448Z" fill="white"/>
 </svg> 

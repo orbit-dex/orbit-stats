@@ -19,7 +19,7 @@ const TradingViewWidget: React.FC = () => {
     script1.async = true;
 
     const script2 = document.createElement('script');
-    script2.src = '/charting_library/datafeeds/udf/dist/bundle.js';
+    script2.src = '/datafeeds/udf/dist/bundle.js';
     script2.async = true;
 
     document.head.appendChild(script1);
@@ -32,18 +32,23 @@ const TradingViewWidget: React.FC = () => {
           locale: 'en',
           library_path: '/charting_library/',
           datafeed: new window.Datafeeds.UDFCompatibleDatafeed('https://demo-feed-data.tradingview.com'),
-          symbol: 'AAPL', // Change to your asset, e.g., 'ORBTUSDC'
+          symbol: 'AAPL', // Changed from 'BTCUSD' to 'AAPL' for demo datafeed compatibility
           interval: '1D',
           fullscreen: false,
           autosize: true,
           debug: true,
+          theme: 'Dark',
         });
       }
     };
 
     return () => {
-      document.head.removeChild(script1);
-      document.head.removeChild(script2);
+      if (script1 && script1.parentNode === document.head) {
+        document.head.removeChild(script1);
+      }
+      if (script2 && script2.parentNode === document.head) {
+        document.head.removeChild(script2);
+      }
     };
   }, []);
 

@@ -1,9 +1,10 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import { Box, Text, Flex, Grid, Input, InputGroup, Button, Table, Thead, Tbody, Tr, Th, Td, Select, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
-import TradingViewWidget from './TradingViewWidget';
-import TradingViewIframe from '@/components/TradingViewIframe';
+import dynamic from 'next/dynamic';
 import { ChevronDownIcon, StarIcon } from '@chakra-ui/icons';
+import HyperliquidOrderBook from './HyperliquidOrderBook';
+import HyperliquidRecentTrades from './HyperliquidRecentTrades';
 
 type TradeType = {
   id: string;
@@ -41,6 +42,8 @@ const pairIcons: Record<string, JSX.Element> = {
   'NDX/USD': <Box as="span" bg="#16C784" color="black" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">NDX</Box>,
 };
 
+const TradingViewWidget = dynamic(() => import('./TradingViewWidget'), { ssr: false });
+
 const Trade: React.FC = () => {
   const [trades, setTrades] = useState<TradeType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,26 +54,16 @@ const Trade: React.FC = () => {
   const [balancesLoading, setBalancesLoading] = useState(false);
   const [balancesError, setBalancesError] = useState<string | null>(null);
 
-  // Add state for order book
-  const [orderBook, setOrderBook] = useState<OrderBookType>({ bids: [], asks: [] });
-  const [orderBookLoading, setOrderBookLoading] = useState(false);
-  const [orderBookError, setOrderBookError] = useState<string | null>(null);
-
   const [isBuy, setIsBuy] = useState(true);
   const [orderTab, setOrderTab] = useState<'Market' | 'Limit' | 'Pro'>('Limit');
   const [leverageTab, setLeverageTab] = useState<'Cross' | '5x' | 'One-Way'>('Cross');
   const [showTPSL, setShowTPSL] = useState(false);
-  const [selectedPair, setSelectedPair] = useState('SOL-USD');
+  const [selectedPair, setSelectedPair] = useState('ETH-USD');
   const [pairDropdownOpen, setPairDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [starredPairs, setStarredPairs] = useState<string[]>([]);
   const pairsData = [
-    { symbol: 'BTC/USD', lastPrice: '96,397', change: '+39 / +0.04%', funding: '0.0100%', volume: '$1,999,541,798', openInterest: '$1,660,469,192' },
-    { symbol: 'ETH/USD', lastPrice: '1,826.2', change: '+10.8 / +0.59%', funding: '-0.0120%', volume: '$598,432,687', openInterest: '$512,487,646' },
-    { symbol: 'SOL/USD', lastPrice: '148.06', change: '-0.42 / -0.29%', funding: '0.0100%', volume: '$368,664,379', openInterest: '$284,848,934' },
-    { symbol: 'SPX/USD', lastPrice: '5,200.0', change: '+12.0 / +0.23%', funding: '0.0100%', volume: '$1,000,000,000', openInterest: '$500,000,000' },
-    { symbol: 'DJI/USD', lastPrice: '38,000', change: '+100 / +0.26%', funding: '0.0100%', volume: '$800,000,000', openInterest: '$400,000,000' },
-    { symbol: 'NDX/USD', lastPrice: '18,000', change: '+50 / +0.28%', funding: '0.0100%', volume: '$600,000,000', openInterest: '$300,000,000' },
+    { symbol: 'ETH-USD', lastPrice: '1,826.2', change: '+10.8 / +0.59%', funding: '-0.0120%', volume: '$598,432,687', openInterest: '$512,487,646' },
   ];
   const filteredPairs = pairsData.filter(pair => pair.symbol.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -104,29 +97,6 @@ const Trade: React.FC = () => {
       .catch((err) => {
         setBalancesError(err.message);
         setBalancesLoading(false);
-      });
-  }, []);
-
-  // Fetch order book
-  useEffect(() => {
-    setOrderBookLoading(true);
-    setOrderBookError(null);
-    fetch('/v1/orderbook?asset=ORBT')
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch order book');
-        return res.json();
-      })
-      .then((data) => {
-        // Assume data.bids and data.asks are arrays
-        setOrderBook({
-          bids: data.bids || [],
-          asks: data.asks || [],
-        });
-        setOrderBookLoading(false);
-      })
-      .catch((err) => {
-        setOrderBookError(err.message);
-        setOrderBookLoading(false);
       });
   }, []);
 
@@ -265,7 +235,7 @@ const Trade: React.FC = () => {
         </Flex>
         <Box flex="1" bg="#111" borderRadius={0} p={4} display="flex" flexDirection="column">
           <Box flex="1">
-            <TradingViewIframe />
+            <TradingViewWidget />
           </Box>
           <Box bg="#111" borderBottomLeftRadius="xl" borderBottomRightRadius="xl" p={4}>
             {/* Trading Tabs (Balances, Positions, etc.) */}
@@ -359,88 +329,10 @@ const Trade: React.FC = () => {
             </TabList>
             <TabPanels height="calc(100% - 25px)" overflowY="auto">
               <TabPanel p={0} height="100%">
-                <Table variant="simple" size="sm">
-                  <Thead position="sticky" top={0} bg="#111" zIndex={1}>
-                    <Tr>
-                      <Th color="#4A5568" width="33%">Price</Th>
-                      <Th color="#4A5568" width="33%">Size</Th>
-                      <Th color="#4A5568" width="33%">Total</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {orderBookLoading ? (
-                      <Tr><Td colSpan={3} color="#A78BFA" textAlign="center">Loading...</Td></Tr>
-                    ) : orderBookError ? (
-                      <Tr><Td colSpan={3} color="red.400" textAlign="center">{orderBookError}</Td></Tr>
-                    ) : (orderBook.asks.length === 0 && orderBook.bids.length === 0) ? (
-                      <Tr><Td colSpan={3} color="#A78BFA" textAlign="center">No order book data</Td></Tr>
-                    ) : (
-                      <>
-                        {orderBook.asks.map((ask, i) => (
-                          <Tr key={`ask-${i}`}>
-                            <Td color="#FF3B3B">{ask.price}</Td>
-                            <Td color="white">{ask.size}</Td>
-                            <Td color="#4A5568">{(ask.price * ask.size).toFixed(2)}</Td>
-                          </Tr>
-                        ))}
-                        <Tr>
-                          <Td colSpan={3} textAlign="center" py={2}>
-                            <Text color="#A78BFA" fontSize="sm" fontWeight="bold">
-                              {orderBook.asks.length > 0 && orderBook.bids.length > 0 ? ((orderBook.asks[0].price + orderBook.bids[0].price) / 2).toFixed(3) : '--'}
-                            </Text>
-                          </Td>
-                        </Tr>
-                        {orderBook.bids.map((bid, i) => (
-                          <Tr key={`bid-${i}`}>
-                            <Td color="#00FFD1">{bid.price}</Td>
-                            <Td color="white">{bid.size}</Td>
-                            <Td color="#4A5568">{(bid.price * bid.size).toFixed(2)}</Td>
-                          </Tr>
-                        ))}
-                      </>
-                    )}
-                  </Tbody>
-                </Table>
+                <HyperliquidOrderBook />
               </TabPanel>
               <TabPanel p={0} height="100%">
-                <Table variant="simple" size="sm">
-                  <Thead position="sticky" top={0} bg="#111" zIndex={1}>
-                    <Tr>
-                      <Th color="#4A5568" width="33%">Price</Th>
-                      <Th color="#4A5568" width="33%">Size</Th>
-                      <Th color="#4A5568" width="33%">Time</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {loading ? (
-                      <Tr>
-                        <Td colSpan={3} color="#A78BFA" textAlign="center">Loading...</Td>
-                      </Tr>
-                    ) : error ? (
-                      <Tr>
-                        <Td colSpan={3} color="red.400" textAlign="center">{error}</Td>
-                      </Tr>
-                    ) : trades.length === 0 ? (
-                      <Tr>
-                        <Td colSpan={3} color="#A78BFA" textAlign="center">No trades found</Td>
-                      </Tr>
-                    ) : (
-                      trades.map((trade) => (
-                        <Tr key={trade.id}>
-                          <Td color="#00FFD1">{trade.price}</Td>
-                          <Td color="white">{trade.size}</Td>
-                          <Td color="#4A5568">{
-                            new Date(
-                              (typeof trade.timestamp === 'string'
-                                ? parseInt(trade.timestamp)
-                                : trade.timestamp) * 1000
-                            ).toLocaleTimeString()
-                          }</Td>
-                        </Tr>
-                      ))
-                    )}
-                  </Tbody>
-                </Table>
+                <HyperliquidRecentTrades />
               </TabPanel>
             </TabPanels>
           </Tabs>
@@ -594,7 +486,7 @@ const Trade: React.FC = () => {
           </Flex>
           <Flex mb={4} justify="space-between">
             <Text color="#4A5568" fontSize="sm">Current Position</Text>
-            <Text color="white" fontSize="sm">0.00 SOL</Text>
+            <Text color="white" fontSize="sm">0.00 ETH</Text>
           </Flex>
           {/* Price input */}
           <Box mb={4}>
@@ -605,7 +497,7 @@ const Trade: React.FC = () => {
           </Box>
           {/* Size input and slider */}
           <Box mb={4}>
-            <Text color="#4A5568" mb={2}>Size (SOL)</Text>
+            <Text color="#4A5568" mb={2}>Size (ETH)</Text>
             <InputGroup mb={2}>
               <Input placeholder="0.00" bg="#0A0A0A" border="1px solid #222" _hover={{ borderColor: '#A78BFA' }} _focus={{ borderColor: '#A78BFA', boxShadow: 'none' }} color="white" borderRadius="xl" />
             </InputGroup>

@@ -58,29 +58,17 @@ const Header = () => {
               </Link>
               <Link href="/pairs" passHref>
                 <ChakraLink color="whiteAlpha.800" _hover={{ color: 'white', textDecoration: 'none' }}>
-                  Pairs
+                  Strategies
                 </ChakraLink>
               </Link>
-              <Link href="/vault" passHref>
-                <ChakraLink color="whiteAlpha.800" _hover={{ color: 'white', textDecoration: 'none' }}>
+              <ChakraLink 
+                href="https://vaults.orbit2.xyz/vaults" 
+                color="whiteAlpha.800" 
+                _hover={{ color: 'white', textDecoration: 'none' }}
+                isExternal
+              >
                   Vault
                 </ChakraLink>
-              </Link>
-              <Link href="/portfolio" passHref>
-                <ChakraLink color="whiteAlpha.800" _hover={{ color: 'white', textDecoration: 'none' }}>
-                  Portfolio
-                </ChakraLink>
-              </Link>
-              <Link href="/explore" passHref>
-                <ChakraLink color="white" fontWeight="semibold" _hover={{ textDecoration: 'none' }}>
-                  Explore
-                </ChakraLink>
-              </Link>
-              <Link href="/leaderboard" passHref>
-                <ChakraLink color="whiteAlpha.800" _hover={{ color: 'white', textDecoration: 'none' }}>
-                  Leaderboard
-                </ChakraLink>
-              </Link>
             </HStack>
             
             <Button

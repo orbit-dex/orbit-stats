@@ -68,7 +68,7 @@ const Trade: React.FC = () => {
   const filteredPairs = pairsData.filter(pair => pair.symbol.toLowerCase().includes(searchTerm.toLowerCase()));
 
   useEffect(() => {
-    fetch('/v1/trades?asset=ORBT&limit=20')
+    fetch('/v1/trades?asset=ORBIT&limit=20')
       .then(res => res.json())
       .then(data => {
         setTrades(data.trades || []);
@@ -268,14 +268,14 @@ const Trade: React.FC = () => {
                   <Table variant="simple" size="sm" sx={{ 'th, td': { borderColor: '#2D2D2D' }, 'tr': { borderBottom: '2px solid #2D2D2D' } }}>
                     <Thead>
                       <Tr>
-                        <Th color="#4A5568">Coin</Th>
+                        <Th color="#4A5568">STOCK</Th>
                         <Th color="#4A5568">Total Balance</Th>
                         <Th color="#4A5568">Available Balance</Th>
                       </Tr>
                     </Thead>
                     <Tbody>
                       <Tr>
-                        <Td color="white">ORBT</Td>
+                        <Td color="white">ORBIT</Td>
                         <Td color="white">0.00</Td>
                         <Td color="white">0.00</Td>
                       </Tr>

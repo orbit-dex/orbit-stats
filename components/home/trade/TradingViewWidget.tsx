@@ -6,6 +6,7 @@ declare global {
   interface Window {
     TradingView: any;
     Datafeeds: any;
+    CryptoCompareDatafeed: any;
   }
 }
 
@@ -32,7 +33,7 @@ const TradingViewWidget: React.FC = () => {
           locale: 'en',
           library_path: '/charting_library/',
           datafeed: new window.Datafeeds.UDFCompatibleDatafeed('https://demo-feed-data.tradingview.com'),
-          symbol: 'AAPL', // Changed from 'BTCUSD' to 'AAPL' for demo datafeed compatibility
+          symbol: 'ETHUSD',
           interval: '1D',
           fullscreen: false,
           autosize: true,

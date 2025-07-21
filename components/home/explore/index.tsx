@@ -32,11 +32,15 @@ import {
   Th,
   Td,
   Wrap,
-  WrapItem
+  WrapItem,
+  useToast
 } from '@chakra-ui/react';
 import { FiSearch, FiClock, FiBookmark, FiStar, FiBell, FiGlobe, FiBook, FiChevronLeft, FiChevronRight, FiHeadphones, FiInfo, FiArrowLeft, FiChevronDown, FiGrid, FiTrendingUp } from 'react-icons/fi';
 import { Area, AreaChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, ComposedChart, BarChart, Bar, CartesianGrid } from 'recharts';
 import { motion } from 'framer-motion';
+import HypernymDemo from './HypernymDemo';
+import SemanticCategorizer from './SemanticCategorizer';
+import { useHypernym } from '../../../hooks/useHypernym';
 
 interface ExploreStats {
   conference: number;
@@ -586,12 +590,14 @@ const PROJECT_METRICS: Record<string, ProjectMetrics> = {
   }
 };
 
-// Update chart data generation
+// Move generateChartData to be a pure function outside component
 const generateChartData = (selectedProject: string) => {
-  const projectConfig = PROJECT_DATA[selectedProject] || PROJECT_DATA['Eigenlayer']; // Default to Eigenlayer if no project selected
+  const projectConfig = PROJECT_DATA[selectedProject] || PROJECT_DATA['Eigenlayer'];
   
   return Array.from({ length: 365 }, (_, i) => {
-    const date = new Date(2023, 10, 1);
+    // Use fixed base date for consistency
+    const baseDate = new Date(2023, 10, 1); // November 1, 2023
+    const date = new Date(baseDate);
     date.setDate(date.getDate() + i);
     const currentDate = date.toISOString().split('T')[0];
     
@@ -606,17 +612,22 @@ const generateChartData = (selectedProject: string) => {
       };
     }
 
-    // Generate regular data points
+    // Generate deterministic data points
     const dayOfYear = Math.floor(i / 30);
-    const baseVolatility = (Math.random() - 0.5) * projectConfig.priceVolatility;
+    const seed = selectedProject.charCodeAt(0) * 1000 + i;
+    const randomValue1 = Math.sin(seed) * 0.5 + 0.5;
+    const randomValue2 = Math.cos(seed) * 0.5 + 0.5;
+    const randomValue3 = Math.sin(seed * 2) * 0.5 + 0.5;
+    
+    const baseVolatility = (randomValue1 - 0.5) * projectConfig.priceVolatility;
     const sentimentBase = (projectConfig.sentimentRange[1] + projectConfig.sentimentRange[0]) / 2;
     const sentimentVolatility = (projectConfig.sentimentRange[1] - projectConfig.sentimentRange[0]) / 4;
     
     return {
       date: currentDate,
       price: Math.round((projectConfig.basePrice + baseVolatility + (dayOfYear * projectConfig.priceVolatility * 0.1)) * 100) / 100,
-      sentiment: Math.round((sentimentBase + (Math.random() - 0.5) * sentimentVolatility) * 100) / 100,
-      mindshare: Math.round((projectConfig.mindshareRange[0] + Math.random() * (projectConfig.mindshareRange[1] - projectConfig.mindshareRange[0])) * 100) / 100
+      sentiment: Math.round((sentimentBase + (randomValue2 - 0.5) * sentimentVolatility) * 100) / 100,
+      mindshare: Math.round((projectConfig.mindshareRange[0] + randomValue3 * (projectConfig.mindshareRange[1] - projectConfig.mindshareRange[0])) * 100) / 100
     };
   });
 };
@@ -722,19 +733,266 @@ const Explore: React.FC = (): JSX.Element => {
   const [activeVisTab, setActiveVisTab] = React.useState('analytics');
   const [viewMode, setViewMode] = useState<'heatmap' | 'trend'>('trend');
   const [timeRange, setTimeRange] = useState<'7D' | '30D' | '3M' | '6M' | '1Y'>('7D');
+  const [mounted, setMounted] = useState(false);
 
-  // Update chart data when project selection changes
-  const [currentChartData, setCurrentChartData] = useState(generateChartData('Eigenlayer'));
+  // Hypernym integration state
+  const [hypernymAnalysis, setHypernymAnalysis] = useState<any>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [enhancedContent, setEnhancedContent] = useState<any[]>([]);
+  const [searchMetadata, setSearchMetadata] = useState<any>(null);
+  const toast = useToast();
+  
+  // Hypernym hook
+  const { 
+    analyzeText, 
+    categorizeContent,
+    enhanceContentWithCategories,
+    loading: hypernymLoading, 
+    error: hypernymError,
+    refresh: refreshHypernym
+  } = useHypernym({ autoFetch: false });
 
-  useEffect(() => {
-    if (selectedProject) {
-      setCurrentChartData(generateChartData(selectedProject));
+  // Calculate real metrics from search results
+  const realMetrics = React.useMemo(() => {
+    if (!enhancedContent.length) {
+      return {
+        documentMentions: 0,
+        totalEngagement: 0,
+        smartEngagement: 0
+      };
     }
+
+    return {
+      documentMentions: enhancedContent.length,
+      totalEngagement: enhancedContent.reduce((total, item) => {
+        // Calculate engagement from various metrics
+        const engagement = (item.engagement || 0) + (item.views || 0) + (item.likes || 0) + (item.retweets || 0);
+        return total + engagement;
+      }, 0),
+      smartEngagement: enhancedContent.filter(item => item.hypernym?.analyzed).length
+    };
+  }, [enhancedContent]);
+
+  // Categorize real results by type for tabs
+  const categorizedResults = React.useMemo(() => {
+    if (!enhancedContent.length) {
+      return {
+        twitter: mockTwitterPosts,
+        news: mockNewsArticles,
+        research: mockResearchReports,
+        mirror: mockMirrorPosts,
+        conference: mockConferences,
+        medium: mockMediumArticles,
+        podcast: mockPodcastEpisodes
+      };
+    }
+
+    const categorized: any = {
+      twitter: [],
+      news: [],
+      research: [],
+      mirror: [],
+      conference: [],
+      medium: [],
+      podcast: []
+    };
+
+    enhancedContent.forEach(item => {
+      // Map real results to appropriate categories based on source or type
+      if (item.source?.toLowerCase().includes('twitter') || item.type === 'social') {
+        categorized.twitter.push({
+          id: item.id,
+          author: item.author || item.source,
+          content: item.description || item.content,
+          date: item.publishedDate || item.date,
+          likes: item.likes || Math.floor(Math.random() * 1000),
+          retweets: item.retweets || Math.floor(Math.random() * 500),
+          hypernym: item.hypernym
+        });
+      } else if (item.type === 'news' || ['coindesk', 'cointelegraph', 'theblock'].some(src => item.source?.toLowerCase().includes(src))) {
+        categorized.news.push({
+          id: item.id,
+          source: item.source,
+          title: item.title,
+          summary: item.description,
+          date: item.publishedDate || item.date,
+          readTime: `${Math.ceil((item.content?.length || 1000) / 200)} min`,
+          hypernym: item.hypernym
+        });
+      } else if (item.type === 'research' || ['arxiv', 'papers', 'research'].some(src => item.source?.toLowerCase().includes(src))) {
+        categorized.research.push({
+          id: item.id,
+          firm: item.author || item.source,
+          title: item.title,
+          type: 'Research Report',
+          date: item.publishedDate || item.date,
+          pages: Math.ceil((item.content?.length || 5000) / 250),
+          hypernym: item.hypernym
+        });
+      } else if (item.source?.toLowerCase().includes('medium')) {
+        categorized.medium.push({
+          id: item.id,
+          author: item.author,
+          publication: item.source,
+          title: item.title,
+          summary: item.description,
+          date: item.publishedDate || item.date,
+          readTime: `${Math.ceil((item.content?.length || 1000) / 200)} min`,
+          claps: Math.floor(Math.random() * 5000),
+          responses: Math.floor(Math.random() * 100),
+          hypernym: item.hypernym
+        });
+      } else {
+        // Default to news if type is unclear
+        categorized.news.push({
+          id: item.id,
+          source: item.source,
+          title: item.title,
+          summary: item.description,
+          date: item.publishedDate || item.date,
+          readTime: `${Math.ceil((item.content?.length || 1000) / 200)} min`,
+          hypernym: item.hypernym
+        });
+      }
+    });
+
+    // Fill with mock data if categories are empty
+    Object.keys(categorized).forEach(key => {
+      if (categorized[key].length === 0) {
+        switch(key) {
+          case 'twitter': categorized[key] = mockTwitterPosts; break;
+          case 'news': categorized[key] = mockNewsArticles; break;
+          case 'research': categorized[key] = mockResearchReports; break;
+          case 'mirror': categorized[key] = mockMirrorPosts; break;
+          case 'conference': categorized[key] = mockConferences; break;
+          case 'medium': categorized[key] = mockMediumArticles; break;
+          case 'podcast': categorized[key] = mockPodcastEpisodes; break;
+        }
+      }
+    });
+
+    return categorized;
+  }, [enhancedContent]);
+
+  // Handle client-side mounting to prevent hydration issues
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Generate chart data directly - no useEffect needed for hydration safety
+  const currentChartData = React.useMemo(() => {
+    return generateChartData(selectedProject || 'Eigenlayer');
   }, [selectedProject]);
 
-  const handleSearch = () => {
+  const handleSearch = async (): Promise<void> => {
     if (searchQuery.trim() && !pinnedSearches.includes(searchQuery.trim())) {
       setPinnedSearches([...pinnedSearches, searchQuery.trim()]);
+      
+      // Use Exa + Hypernym API for real content search and analysis
+      setIsAnalyzing(true);
+      try {
+        console.log(`🔍 Searching with Exa + Hypernym: "${searchQuery.trim()}"${selectedProject ? ` for project: ${selectedProject}` : ''}`);
+        
+        // Call the new search API that combines Exa search with Hypernym analysis
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: searchQuery.trim(),
+            project: selectedProject || undefined,
+            sourceType: selectedSource === 'all' ? 'all' : selectedSource,
+            limit: 15,
+            analyzeContent: true
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Search API error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.success) {
+          const searchData = result.data;
+          setEnhancedContent(searchData.results);
+          setSearchMetadata(searchData.metadata);
+          
+          // Show success toast with detailed results
+          toast({
+            title: "🎯 Smart Search Complete!",
+            description: `Found ${searchData.total} results with Hypernym analysis. Sources: ${searchData.metadata.searchedWith.toUpperCase()}`,
+            status: "success",
+            duration: 4000,
+            isClosable: true,
+          });
+
+          // Update mock data arrays with real results for display
+          const realResults = searchData.results;
+          
+          // Categorize results by type for different tabs
+          const newsByType = realResults.filter((r: any) => r.type === 'news').slice(0, 5);
+          const researchByType = realResults.filter((r: any) => r.type === 'research').slice(0, 5);
+          const socialByType = realResults.filter((r: any) => r.type === 'social').slice(0, 5);
+          const cryptoByType = realResults.filter((r: any) => r.type === 'crypto').slice(0, 5);
+
+          // Store the real data for use in tab content
+          // Note: In a full implementation, you'd update state to replace mock data
+          console.log('📊 Search Results:', {
+            total: searchData.total,
+            news: newsByType.length,
+            research: researchByType.length,
+            social: socialByType.length,
+            crypto: cryptoByType.length,
+            enhanced: realResults.filter((r: any) => r.hypernym?.analyzed).length
+          });
+
+          // Log sample enhanced content
+          if (realResults.length > 0) {
+            const sample = realResults[0];
+            console.log('🧠 Sample Hypernym Analysis:', {
+              title: sample.title,
+              category: sample.hypernym?.primaryCategory,
+              narratives: sample.hypernym?.narratives,
+              confidence: sample.hypernym?.confidence,
+              themes: sample.hypernym?.themes
+            });
+          }
+          
+        } else {
+          throw new Error(result.error || 'Search failed');
+        }
+        
+      } catch (error) {
+        console.error('🚨 Search failed:', error);
+        toast({
+          title: "⚠️ Search Failed",
+          description: `Error: ${error instanceof Error ? error.message : 'Unknown error'}. Using fallback content.`,
+          status: "warning",
+          duration: 4000,
+          isClosable: true,
+        });
+        
+        // Fallback to basic Hypernym analysis
+        try {
+          const searchText = `${selectedProject ? selectedProject + ': ' : ''}${searchQuery.trim()}`;
+          const analysis = await analyzeText(searchText);
+          if (analysis) {
+            setHypernymAnalysis(analysis);
+            toast({
+              title: "📈 Fallback Analysis",
+              description: `Hypernym analysis: ${analysis.categories.length} categories found`,
+              status: "info",
+              duration: 3000,
+              isClosable: true,
+            });
+          }
+        } catch (fallbackError) {
+          console.error('Fallback analysis also failed:', fallbackError);
+        }
+      } finally {
+        setIsAnalyzing(false);
+      }
+      
       setSearchQuery('');
     }
   };
@@ -756,7 +1014,7 @@ const Explore: React.FC = (): JSX.Element => {
       case 'twitter':
         return (
           <VStack spacing={3} align="stretch" px={2}>
-            {mockTwitterPosts.map((post) => (
+            {categorizedResults.twitter.map((post) => (
               <Box
                 key={post.id}
                 py={3}
@@ -799,7 +1057,7 @@ const Explore: React.FC = (): JSX.Element => {
       case 'news':
         return (
           <VStack spacing={3} align="stretch" px={2}>
-            {mockNewsArticles.map((article) => (
+            {categorizedResults.news.map((article) => (
               <Box
                 key={article.id}
                 py={3}
@@ -834,7 +1092,7 @@ const Explore: React.FC = (): JSX.Element => {
       case 'research':
         return (
           <VStack spacing={3} align="stretch" px={2}>
-            {mockResearchReports.map((report) => (
+            {categorizedResults.research.map((report) => (
               <Box
                 key={report.id}
                 py={3}
@@ -871,7 +1129,7 @@ const Explore: React.FC = (): JSX.Element => {
       case 'twitter-space':
         return (
           <VStack spacing={3} align="stretch" px={2}>
-            {mockTwitterSpaces.map((space) => (
+            {categorizedResults.conference.map((space) => (
               <Box
                 key={space.id}
                 py={3}
@@ -927,7 +1185,7 @@ const Explore: React.FC = (): JSX.Element => {
       case 'mirror':
         return (
           <VStack spacing={3} align="stretch" px={2}>
-            {mockMirrorPosts.map((post) => (
+            {categorizedResults.mirror.map((post) => (
               <Box
                 key={post.id}
                 py={3}
@@ -976,7 +1234,7 @@ const Explore: React.FC = (): JSX.Element => {
       case 'discord':
         return (
           <VStack spacing={3} align="stretch" px={2}>
-            {mockDiscordMessages.map((message) => (
+            {categorizedResults.discord.map((message) => (
               <Box
                 key={message.id}
                 py={3}
@@ -1024,7 +1282,7 @@ const Explore: React.FC = (): JSX.Element => {
       case 'conference':
         return (
           <VStack spacing={3} align="stretch" px={2}>
-            {mockConferences.map((conf) => (
+            {categorizedResults.conference.map((conf) => (
               <Box
                 key={conf.id}
                 py={3}
@@ -1081,7 +1339,7 @@ const Explore: React.FC = (): JSX.Element => {
       case 'medium':
         return (
           <VStack spacing={3} align="stretch" px={2}>
-            {mockMediumArticles.map((article) => (
+            {categorizedResults.medium.map((article) => (
               <Box
                 key={article.id}
                 py={3}
@@ -1135,7 +1393,7 @@ const Explore: React.FC = (): JSX.Element => {
       case 'podcast':
         return (
           <VStack spacing={3} align="stretch" px={2}>
-            {mockPodcastEpisodes.map((episode) => (
+            {categorizedResults.podcast.map((episode) => (
               <Box
                 key={episode.id}
                 py={3}
@@ -1188,7 +1446,7 @@ const Explore: React.FC = (): JSX.Element => {
         return num.toString();
       };
       
-      const metrics = PROJECT_METRICS[selectedProject] || PROJECT_METRICS['Eigenlayer'];
+      const metrics = realMetrics;
       
       return (
         <VStack height="100%" spacing={4} align="stretch">
@@ -1216,16 +1474,31 @@ const Explore: React.FC = (): JSX.Element => {
                   <Text color="gray.400" fontSize="sm">Total document mentions</Text>
                   <Icon as={FiInfo} color="gray.600" boxSize={3} />
                   <Text color="white" fontSize="sm">{formatLargeNumber(metrics.documentMentions)}</Text>
+                  {enhancedContent.length > 0 && (
+                    <Box bg="green.500" color="white" px={1} py={0.5} borderRadius="sm" fontSize="xs">
+                      LIVE
+                    </Box>
+                  )}
                 </HStack>
                 <HStack spacing={2}>
                   <Text color="gray.400" fontSize="sm">Total engagement</Text>
                   <Icon as={FiInfo} color="gray.600" boxSize={3} />
                   <Text color="white" fontSize="sm">{formatLargeNumber(metrics.totalEngagement)}</Text>
+                  {enhancedContent.length > 0 && (
+                    <Box bg="green.500" color="white" px={1} py={0.5} borderRadius="sm" fontSize="xs">
+                      LIVE
+                    </Box>
+                  )}
                 </HStack>
                 <HStack spacing={2}>
                   <Text color="gray.400" fontSize="sm">Smart engagement</Text>
                   <Icon as={FiInfo} color="gray.600" boxSize={3} />
                   <Text color="white" fontSize="sm">{formatLargeNumber(metrics.smartEngagement)}</Text>
+                  {enhancedContent.length > 0 && (
+                    <Box bg="purple.500" color="white" px={1} py={0.5} borderRadius="sm" fontSize="xs">
+                      AI
+                    </Box>
+                  )}
                 </HStack>
               </Flex>
             </VStack>
@@ -1262,39 +1535,41 @@ const Explore: React.FC = (): JSX.Element => {
 
           {/* First Chart - Mindshare */}
           <Box height="45%" width="100%">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={currentChartData}>
-                <defs>
-                  <linearGradient id="mindshareFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#60A5FA" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#60A5FA" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2D3748" />
-                <XAxis dataKey="date" stroke="#A0AEC0" />
-                <YAxis 
-                  stroke="#60A5FA"
-                  tickFormatter={formatValue}
-                  label={{ value: 'Mindshare', angle: -90, position: 'left', offset: 20, fill: '#60A5FA' }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#1A1A1A',
-                    border: 'none',
-                    borderRadius: '8px',
-                  }}
-                  formatter={(value: number) => [`Mindshare: ${formatValue(value)}`, '']}
-                  labelFormatter={(label) => label}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="mindshare"
-                  stroke="#60A5FA"
-                  fill="url(#mindshareFill)"
-                  name="Mindshare"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {mounted && (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={currentChartData}>
+                  <defs>
+                    <linearGradient id="mindshareFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#60A5FA" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#60A5FA" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#2D3748" />
+                  <XAxis dataKey="date" stroke="#A0AEC0" />
+                  <YAxis 
+                    stroke="#60A5FA"
+                    tickFormatter={formatValue}
+                    label={{ value: 'Mindshare', angle: -90, position: 'left', offset: 20, fill: '#60A5FA' }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1A1A1A',
+                      border: 'none',
+                      borderRadius: '8px',
+                    }}
+                    formatter={(value: number) => [`Mindshare: ${formatValue(value)}`, '']}
+                    labelFormatter={(label) => label}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="mindshare"
+                    stroke="#60A5FA"
+                    fill="url(#mindshareFill)"
+                    name="Mindshare"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </Box>
 
           {/* Second Chart Title */}
@@ -1307,57 +1582,59 @@ const Explore: React.FC = (): JSX.Element => {
 
           {/* Second Chart - Price and Sentiment */}
           <Box height="45%" width="100%">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={currentChartData}>
-                <defs>
-                  <linearGradient id="sentimentFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#34D399" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#34D399" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2D3748" />
-                <XAxis dataKey="date" stroke="#A0AEC0" />
-                <YAxis 
-                  yAxisId="sentiment"
-                  stroke="#34D399"
-                  tickFormatter={formatValue}
-                  label={{ value: 'Sentiment', angle: -90, position: 'left', offset: 20, fill: '#34D399' }}
-                />
-                <YAxis 
-                  yAxisId="price"
-                  orientation="right"
-                  stroke="#FBBF24"
-                  tickFormatter={formatValue}
-                  label={{ value: 'Price', angle: -90, position: 'right', offset: 20, fill: '#FBBF24' }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#1A1A1A',
-                    border: 'none',
-                    borderRadius: '8px',
-                  }}
-                  formatter={(value: number, name: string) => [`${name}: ${formatValue(value)}`, '']}
-                  labelFormatter={(label) => label}
-                />
-                <Area
-                  yAxisId="sentiment"
-                  type="monotone"
-                  dataKey="sentiment"
-                  stroke="#34D399"
-                  fill="url(#sentimentFill)"
-                  name="Sentiment"
-                />
-                <Line
-                  yAxisId="price"
-                  type="basis"
-                  dataKey="price"
-                  stroke="#FBBF24"
-                  dot={false}
-                  name="Price"
-                  strokeWidth={2}
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
+            {mounted && (
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={currentChartData}>
+                  <defs>
+                    <linearGradient id="sentimentFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#34D399" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#34D399" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#2D3748" />
+                  <XAxis dataKey="date" stroke="#A0AEC0" />
+                  <YAxis 
+                    yAxisId="sentiment"
+                    stroke="#34D399"
+                    tickFormatter={formatValue}
+                    label={{ value: 'Sentiment', angle: -90, position: 'left', offset: 20, fill: '#34D399' }}
+                  />
+                  <YAxis 
+                    yAxisId="price"
+                    orientation="right"
+                    stroke="#FBBF24"
+                    tickFormatter={formatValue}
+                    label={{ value: 'Price', angle: -90, position: 'right', offset: 20, fill: '#FBBF24' }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1A1A1A',
+                      border: 'none',
+                      borderRadius: '8px',
+                    }}
+                    formatter={(value: number, name: string) => [`${name}: ${formatValue(value)}`, '']}
+                    labelFormatter={(label) => label}
+                  />
+                  <Area
+                    yAxisId="sentiment"
+                    type="monotone"
+                    dataKey="sentiment"
+                    stroke="#34D399"
+                    fill="url(#sentimentFill)"
+                    name="Sentiment"
+                  />
+                  <Line
+                    yAxisId="price"
+                    type="basis"
+                    dataKey="price"
+                    stroke="#FBBF24"
+                    dot={false}
+                    name="Price"
+                    strokeWidth={2}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            )}
           </Box>
         </VStack>
       );
@@ -1402,32 +1679,34 @@ const Explore: React.FC = (): JSX.Element => {
       case 'trend':
         return (
           <Box height="100%">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={currentChartData}>
-                <defs>
-                  <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#60A5FA" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#60A5FA" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#2D3748" />
-                <XAxis dataKey="date" stroke="#A0AEC0" />
-                <YAxis stroke="#A0AEC0" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#1A1A1A',
-                    border: 'none',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="mindshare"
-                  stroke="#60A5FA"
-                  fill="url(#trendFill)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {mounted && (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={currentChartData}>
+                  <defs>
+                    <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#60A5FA" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#60A5FA" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#2D3748" />
+                  <XAxis dataKey="date" stroke="#A0AEC0" />
+                  <YAxis stroke="#A0AEC0" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1A1A1A',
+                      border: 'none',
+                      borderRadius: '8px',
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="mindshare"
+                    stroke="#60A5FA"
+                    fill="url(#trendFill)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </Box>
         );
       default:
@@ -1623,6 +1902,8 @@ const Explore: React.FC = (): JSX.Element => {
               size="sm"
               px="4"
               onClick={handleSearch}
+              isLoading={isAnalyzing}
+              loadingText="Analyzing..."
             >
               Search
             </Button>
@@ -1820,6 +2101,7 @@ const Explore: React.FC = (): JSX.Element => {
     return (
       <Box p={8}>
         <Flex direction="column" gap={6}>
+          {/* Existing Content */}
           <Text fontSize="2xl" color="white">Narrative Mindshare</Text>
           <Text color="gray.400" fontSize="sm">
             Narrative Mindshare is a metric that measures the prominence of a specific narrative or story within the overall market context.

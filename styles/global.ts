@@ -37,5 +37,13 @@ export const GlobalStyles = css`
   }
 
   ${custom}
+
+  /* Force TradingView widget and all children to have a black background */
+  #tv_chart_container, #tv_chart_container * {
+    background: #000 !important;
+  }
+  #tv_chart_container iframe {
+    background: #000 !important;
+  }
  
 `;

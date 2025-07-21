@@ -13,85 +13,86 @@ import Header from '@/components/common/header';
 import Footer from '@/components/common/footer';
 
 interface TradingPair {
-  symbol: string;
   name: string;
-  price: number;
-  priceChange?: number;
-  volume: string;
-  status?: string;
-  fundingLong?: number;
-  fundingShort?: number;
+  type: string;
+  marketCap: string;
+  returnToDate: number;
+  description: string;
+  tags: string[];
+  portfolioManager: string;
+  ranking?: string;
+  votesNeeded: number;
+  comments: number;
 }
 
-// Mock data for pairs
+// Mock data for strategies/funds
 const mockPairs: TradingPair[] = [
   {
-    symbol: 'BTC/USD',
-    name: 'Bitcoin',
-    price: 94627,
-    priceChange: -0.22,
-    volume: '1.4B',
-    fundingLong: -0.0042,
-    fundingShort: 0.0059,
+    name: 'Arteris, Inc.',
+    type: 'Hedge Fund',
+    marketCap: '374.0M USD',
+    returnToDate: 4.7,
+    description: 'IP supplier to Artificial Intelligence and ADAS chips and trades at 1/10 the multiple of its closest competitor.',
+    tags: [],
+    portfolioManager: '$50M - $100M Hedge Fund',
+    votesNeeded: 4,
+    comments: 3
   },
   {
-    symbol: 'ETH/USD',
-    name: 'Ethereum',
-    price: 1797.71,
-    priceChange: -0.25,
-    volume: '666.3M',
-    fundingLong: -0.0045,
-    fundingShort: 0.007,
+    name: 'Matas A/s',
+    type: 'Family Office',
+    marketCap: '782.0M USD',
+    returnToDate: 91.8,
+    description: 'Leading drug store retailer with 5% growth and trading at less than 10x earnings. Digitalisation journey will grow the company into more categories and higher profitability',
+    tags: [],
+    portfolioManager: '$50M - $100M Family Office',
+    ranking: '',
+    votesNeeded: 4,
+    comments: 4
   },
   {
-    symbol: 'SOL/USD',
-    name: 'Solana',
-    price: 147.214,
-    priceChange: -0.52,
-    volume: '534.7M',
-    fundingLong: 0.0008,
-    fundingShort: -0.0007,
+    name: 'Bakkafrost P/f',
+    type: 'Family Office',
+    marketCap: '2.6B USD',
+    returnToDate: -17.4,
+    description: 'Leading salmon farmer in Faroe Island known for its high quality salmons. Heading for higher growth. Based on share price targets its a 20% CAGR return profile',
+    tags: [],
+    portfolioManager: '$50M - $100M Family Office',
+    ranking: '',
+    votesNeeded: 4,
+    comments: 0
   },
   {
-    symbol: 'SPX/USD',
-    name: 'S&P 500',
-    price: 5558.5,
-    volume: '456.0M',
-    status: 'CLOSED',
+    name: 'Echostar Corporation',
+    type: 'Hedge Fund',
+    marketCap: '3.9B USD',
+    returnToDate: 10.2,
+    description: 'Trades at <20% of FMV of its assets. Potential startup like returns, but with significant downside protection. Bankruptcy risk off the table.',
+    tags: [],
+    portfolioManager: '$1M - $10M Hedge Fund',
+    ranking: '',
+    votesNeeded: 4,
+    comments: 2
   },
   {
-    symbol: 'DJI/USD',
-    name: 'Dow Jones',
-    price: 40594.6,
-    volume: '6.3M',
-    status: 'CLOSED',
-  },
-  {
-    symbol: 'NDX/USD',
-    name: 'Nasdaq',
-    price: 19516.5,
-    volume: '125.1M',
-    status: 'CLOSED',
-  },
+    name: 'Kmd Brands Limited',
+    type: 'Analyst',
+    marketCap: '127.0M USD',
+    returnToDate: -28.9,
+    description: 'Disproportionate focus on an underperforming division creates attractive SOTP-driven risk-reward opportunity.',
+    tags: [],
+    portfolioManager: '',
+    votesNeeded: 4,
+    comments: 2
+  }
 ];
-
-// Add a mapping for pair icons (placeholder: colored circle with initials)
-const pairIcons: Record<string, JSX.Element> = {
-  'BTC/USD': <Box as="span" bg="#F7931A" color="white" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">BTC</Box>,
-  'ETH/USD': <Box as="span" bg="#627EEA" color="white" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">ETH</Box>,
-  'SOL/USD': <Box as="span" bg="#00FFA3" color="black" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">SOL</Box>,
-  'SPX/USD': <Box as="span" bg="#A78BFA" color="black" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">SPX</Box>,
-  'DJI/USD': <Box as="span" bg="#4A5568" color="white" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">DJI</Box>,
-  'NDX/USD': <Box as="span" bg="#16C784" color="black" borderRadius="full" px={2} py={1} fontWeight="bold" fontSize="sm" mr={2} display="inline-block">NDX</Box>,
-};
 
 const PairsPage = () => {
   const router = useRouter();
 
   const handlePairClick = (pair: TradingPair) => {
-    // Extract the base symbol from the pair (e.g., "BTC" from "BTC/USD")
-    const baseSymbol = pair.symbol.split('/')[0];
-    router.push(`/trade?symbol=${baseSymbol}`);
+    // Navigate to strategy details page
+    router.push(`/strategy/${pair.name.toLowerCase().replace(/\s+/g, '-')}`);
   };
 
   return (
@@ -107,31 +108,29 @@ const PairsPage = () => {
               color="white" 
               mb={3}
             >
-              Pairs
+              Strategies
             </Text>
             <Text color="whiteAlpha.700" fontSize="lg">
-              Discover and trade the most liquid pairs across all markets
+              Discover and analyze different investment strategies across markets
             </Text>
           </Box>
 
-          {/* Pairs Grid */}
+          {/* Strategies Grid */}
           <Grid 
             templateColumns={{ 
               base: "1fr",
-              md: "repeat(2, 1fr)", 
-              lg: "repeat(3, 1fr)",
-              xl: "repeat(5, 1fr)" 
+              lg: "1fr"
             }}
             gap={4}
           >
-            {mockPairs.map((pair) => (
+            {mockPairs.map((strategy) => (
               <Box
-                key={pair.symbol}
+                key={strategy.name}
                 bg="#111111"
                 borderRadius="xl"
-                p={4}
+                p={6}
                 cursor="pointer"
-                onClick={() => handlePairClick(pair)}
+                onClick={() => handlePairClick(strategy)}
                 _hover={{ 
                   bg: '#1A1A1A',
                   transform: 'translateY(-2px)',
@@ -142,69 +141,48 @@ const PairsPage = () => {
                 overflow="hidden"
                 transition="all 0.2s ease-in-out"
               >
-                {/* Purple Gradient Overlay */}
-                <Box
-                  position="absolute"
-                  top={0}
-                  right={0}
-                  width="30%"
-                  height="100%"
-                  bgGradient="linear(to-l, rgba(153, 69, 255, 0.03), transparent)"
-                />
-
-                {/* Top Section */}
-                <Flex direction="column" mb={3}>
-                  <Flex align="center">
-                    {pairIcons[pair.symbol]}
-                    <Text color="white" fontSize="sm" mb={0.5} fontWeight="medium">{pair.symbol}</Text>
-                  </Flex>
-                </Flex>
-
-                {/* Price Section */}
-                <Text fontSize="2xl" fontWeight="semibold" color="white" mb={1}>
-                  {pair.price.toLocaleString()}
+                {/* Strategy Header */}
+                <Flex justify="space-between" align="start" mb={4}>
+                  <Box>
+                    <Text color="white" fontSize="xl" fontWeight="bold" mb={1}>
+                      {strategy.name}
+                    </Text>
+                    <Text color="whiteAlpha.700" fontSize="sm">
+                      {strategy.type}
+                    </Text>
+                  </Box>
+                  <Box textAlign="right">
+                    <Text color="white" fontSize="md" fontWeight="semibold">
+                      {strategy.marketCap}
                 </Text>
                 <Text 
                   fontSize="sm"
-                  color={pair.status === 'CLOSED' ? '#FF3B3B' : 
-                         (pair.priceChange ?? 0) >= 0 ? '#00FFB3' : '#FF3B3B'}
-                  mb={3}
+                      color={strategy.returnToDate >= 0 ? '#00FFB3' : '#FF3B3B'}
                   fontWeight="medium"
                 >
-                  {pair.status || `${(pair.priceChange ?? 0) >= 0 ? '+' : ''}${pair.priceChange}%`}
+                      {strategy.returnToDate >= 0 ? '▲' : '▼'} {Math.abs(strategy.returnToDate)}%
+                    </Text>
+                  </Box>
+                </Flex>
+
+                {/* Description */}
+                <Text color="whiteAlpha.900" fontSize="md" mb={4}>
+                  {strategy.description}
                 </Text>
 
-                {/* Stats Section */}
-                <Box fontSize="xs" position="relative" zIndex={1}>
-                  <Flex justify="space-between" mb={1}>
-                    <Text color="whiteAlpha.700">Cumulative Volume</Text>
-                    <Text color="white">{pair.volume}</Text>
-                  </Flex>
-                  {/* Always show funding rows, use '--' if undefined */}
-                  <Flex justify="space-between" mb={1}>
-                    <Text color="whiteAlpha.700">Est 1h Funding Long</Text>
-                    <Text color={pair.fundingLong !== undefined && pair.fundingLong >= 0 ? '#00FFB3' : '#FF3B3B'}>
-                      {pair.fundingLong !== undefined ? `${pair.fundingLong}%` : '--'}
+                {/* Footer Info */}
+                <Flex justify="space-between" align="center" mt={4}>
+                  <Box>
+                    <Text color="whiteAlpha.700" fontSize="sm">
+                      {strategy.portfolioManager}
                     </Text>
-                  </Flex>
-                  <Flex justify="space-between">
-                    <Text color="whiteAlpha.700">Est 1h Funding Short</Text>
-                    <Text color={pair.fundingShort !== undefined && pair.fundingShort >= 0 ? '#00FFB3' : '#FF3B3B'}>
-                      {pair.fundingShort !== undefined ? `${(pair.fundingShort).toFixed(4)}%` : '--'}
+                    {strategy.ranking && (
+                      <Text color="whiteAlpha.700" fontSize="sm">
+                        {strategy.ranking}
                     </Text>
+                    )}
+                  </Box>
                   </Flex>
-                </Box>
-
-                {/* Chart Indicator */}
-                <Box
-                  position="absolute"
-                  right={0}
-                  top={0}
-                  bottom={0}
-                  width="3px"
-                  bg="white"
-                  opacity={0.2}
-                />
               </Box>
             ))}
           </Grid>
